@@ -1,0 +1,84 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ANN ANALYSIS
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+psi_trn = psi(:,tr.trainInd)';
+psi_tst = psi(:,tr.testInd)';
+ 
+yt_trn = yt(:,tr.trainInd)';
+yt_tst = yt(:,tr.testInd)';
+ 
+[Q, R] = qr(psi_trn, 0);
+theta = R\ (Q' * yt_trn);
+yhat_trnQR = psi_trn * theta;
+yhat_trnQR = yhat_trnQR';
+yt_trn = yt_trn';
+ 
+yhat_tstQR = psi_tst * theta;
+yhat_tstQR = yhat_tstQR';
+yt_tst = yt_tst';
+ 
+%fitting test
+figure, plot(yt_trn);    %jawapan sebenar
+hold on;
+plot(yhat_trn,'r--');    %merah prediction
+hold off;
+ 
+%fitting test
+figure, plot(yt_tst);    %jawapan sebenar
+hold on;
+plot(yhat_tst,'r--');    %merah prediction
+hold off;
+ 
+resid_trnQR = yt_trn - yhat_trnQR;
+resid_tstQR = yt_tst - yhat_tstQR;
+ 
+rsq_trnQR = 100 * (1 - (sum(resid_trnQR .^2)/sum((yt_trn - mean(yt_trn)) .^2)))
+rsq_tstQR = 100 * (1 - (sum(resid_tstQR .^2)/sum((yt_tst - mean(yt_tst)) .^2)))
+mse_trnQR = mse(resid_trnQR)
+mse_tstQR = mse(resid_tstQR)
+ 
+reverseOri_trn = mapminmax('reverse',yt_trn,ys);
+reverseANN_trn=mapminmax('reverse',yhat_trn,ys);
+reverseQR_trn=mapminmax('reverse',yhat_trnQR,ys);
+ 
+figure, plot(reverseOri_trn);
+hold on;
+plot(reverseANN_trn,'r--');
+plot(reverseQR_trn, 'g--');
+hold off;
+ 
+reverseOri_tst = mapminmax('reverse',yt_tst,ys);
+reverseANN_tst=mapminmax('reverse',yhat_tst,ys);
+reverseQR_tst=mapminmax('reverse',yhat_tstQR,ys);
+ 
+reverseResidTrnANN = reverseOri_trn - reverseANN_trn
+reverseResidTrnQR = reverseOri_trn - reverseQR_trn
+reverseResidTstANN = reverseOri_tst - reverseANN_tst
+reverseResidTstQR = reverseOri_tst - reverseQR_tst
+ 
+clc
+ 
+rsq_trnANN = 100 * (1 - (sum(reverseResidTrnANN .^2)/sum((reverseOri_trn - mean(reverseOri_trn)) .^2)))
+rsq_trnQR = 100 * (1 - (sum(reverseResidTrnQR .^2)/sum((reverseOri_trn - mean(reverseOri_trn)) .^2)))
+ 
+rsq_tstANN = 100 * (1 - (sum(reverseResidTstANN .^2)/sum((reverseOri_tst - mean(reverseOri_tst)) .^2)))
+rsq_tstQR = 100 * (1 - (sum(reverseResidTstQR .^2)/sum((reverseOri_tst - mean(reverseOri_tst)) .^2)))
+ 
+mse_reverseANN_trn = mse(reverseResidTrnANN)
+mse_reverseANN_tst = mse(reverseResidTstANN)
+mse_reverseQR_trn = mse(reverseResidTrnQR)
+mse_reverseQR_tst = mse(reverseResidTstQR)
+ 
+figure, plot(reverseOri_tst);
+hold on;
+plot(reverseANN_tst,'r--');
+plot(reverseQR_tst, 'g--');
+hold off;
+ 
+
+END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
